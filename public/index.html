@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070308">
+<title>Aufhebung: the Dialectic Engine · find the culture both sides share</title>
+<meta name="description" content="Aufhebung: the Dialectic Engine. Enter two opposing ideas. Find the culture both sides share, with Qloo's taste graph.">
+<meta name="application-name" content="Aufhebung">
+<meta property="og:title" content="Aufhebung: the Dialectic Engine">
+<meta property="og:description" content="Enter two opposing ideas. Find the culture both sides share.">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,500&family=Outfit:wght@300;400&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas class="stage" id="stage" aria-hidden="true"></canvas>
+<main class="ui">
+  <header class="mast">
+    <p class="kicker">Aufhebung · the Dialectic Engine</p>
+    <h1>Enter two opposing ideas.<br><em>Find the culture both sides share.</em></h1>
+    <p class="whisper">Anchor each idea in a book, album, film, artist or place. Qloo's taste graph finds what each side's audience loves, and what both love. Hegel gives the movement, Plotinus the method.</p>
+    <nav class="tabs" aria-label="Mode"><button type="button" class="tab" id="tab-bridge" aria-pressed="true">Bridge two ideas</button><button type="button" class="tab" id="tab-taste" aria-pressed="false">Read one taste</button></nav>
+  </header>
+
+  <form class="altar dialectic" id="dialectic" autocomplete="off">
+    <div class="sides">
+      <fieldset class="side thesis"><legend class="kicker">Thesis</legend>
+        <input class="idea" id="thesis-idea" aria-label="Thesis idea" placeholder="an idea, e.g. help yourself" maxlength="80">
+        <p class="fine left">Taste anchors for this side</p><div class="loves" id="thesis-anchors"></div>
+        <button type="button" class="enter ghost small" data-add="thesis-anchors">+ anchor</button>
+      </fieldset>
+      <fieldset class="side antithesis"><legend class="kicker">Antithesis</legend>
+        <input class="idea" id="antithesis-idea" aria-label="Antithesis idea" placeholder="its opposite, e.g. help others" maxlength="80">
+        <p class="fine left">Taste anchors for this side</p><div class="loves" id="antithesis-anchors"></div>
+        <button type="button" class="enter ghost small" data-add="antithesis-anchors">+ anchor</button>
+      </fieldset>
+    </div>
+    <fieldset class="side synth"><legend class="kicker">Synthesis <span class="opt">optional</span></legend>
+      <input class="idea" id="synthesis" aria-label="Synthesis (optional)" placeholder="leave blank and the agent proposes one" maxlength="120">
+    </fieldset>
+    <div class="actions">
+      <button type="submit" class="enter primary" id="go-bridge">Find the bridge</button>
+      <button type="button" class="enter ghost drone-btn" aria-pressed="false">Soft drone</button>
+    </div>
+  </form>
+
+  <form class="altar" id="altar" autocomplete="off" hidden>
+    <p class="kicker">What do you love?</p>
+    <div id="loves" class="loves"></div>
+    <div class="actions">
+      <button type="button" class="enter ghost" id="add">+ another love</button>
+      <button type="submit" class="enter primary" id="go">Find the thread</button>
+      <button type="button" class="enter ghost drone-btn" aria-pressed="false">Soft drone</button>
+    </div>
+    <p class="fine">Philosophy, music, painting, film, places and books all mix. Range is the point.</p>
+  </form>
+
+  <p class="status" id="status" aria-live="polite"></p>
+
+  <section class="reading" id="bridge-reading" hidden>
+    <div class="mode" id="bmode"></div>
+    <p class="movement" id="movement"></p>
+    <p class="understand" id="understand"></p>
+    <p class="about" id="about"></p>
+    <article class="card bridge" data-tier="one">
+      <small>The bridge · loved by both audiences</small><h2>The One</h2>
+      <p class="reading-one" id="bone"></p>
+      <div class="picks grid" id="bpicks"></div>
+    </article>
+    <div class="sidecards">
+      <article class="card sidecard" data-tier="soul" id="tcard"></article>
+      <article class="card sidecard" data-tier="nous" id="acard"></article>
+    </div>
+    <p class="whisper center small">Method: Soul is what a side feels, Intellect is the pattern under it, the One is the thread the bridge reveals. Nietzsche's will to power is read as self-overcoming, never domination.</p>
+    <details class="trace"><summary>How the agent got here</summary><ol id="btrace"></ol></details>
+  </section>
+
+  <section class="reading" id="reading" hidden>
+    <div class="mode" id="mode"></div>
+    <div class="tiers">
+      <article class="tier" data-tier="soul"><small>Psyche · the many</small><h2>Soul</h2><p id="soul"></p><div class="chips" id="textures"></div></article>
+      <article class="tier" data-tier="nous"><small>Intellect · the Forms</small><h2>Nous</h2><p id="nous"></p><div class="chips" id="forms"></div></article>
+      <article class="tier one" data-tier="one"><small>The thread · what unifies</small><h2>The One</h2><p id="one"></p></article>
+    </div>
+    <p class="kicker center">The leaps</p>
+    <p class="whisper center">Each is the same Form in different matter. Ranked by Qloo's taste graph against your loves.</p>
+    <div class="leaps" id="leaps"></div>
+    <details class="trace"><summary>How the agent got here</summary><ol id="trace"></ol></details>
+  </section>
+
+  <footer class="foot">
+    <p>Taste data from <a href="https://www.qloo.com/" target="_blank" rel="noopener">Qloo</a>. Built for the Qloo Agentic Hackathon. <q>Withdraw into yourself and look.</q> Ennead I.6</p>
+  </footer>
+</main>
+<script src="drone.js"></script>
+<script src="stage.js"></script>
+<script src="app.js"></script>
+<script src="bridge.js"></script>
+</body>
+</html>

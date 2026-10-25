@@ -1,0 +1,3 @@
+{
+  "functions": { "api/oracle.js": { "maxDuration": 30 } }
+}

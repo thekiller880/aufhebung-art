@@ -1,0 +1,14 @@
+{
+  "name": "aufhebung",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aufhebung: the Dialectic Engine. Enter two opposing ideas; find the culture both sides share, with Qloo's taste graph.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "dev": "node dev-server.js",
+    "test": "node test/smoke.js",
+    "qloo:check": "node test/qloo-live-check.js"
+  }
+}
