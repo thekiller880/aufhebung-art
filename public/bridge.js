@@ -12,15 +12,34 @@
   function addAnchor(box, name = '', domain = 'auto') {
     if (box.children.length >= 4) return;
     const row = document.createElement('div'); row.className = 'love';
-    row.innerHTML = `<input aria-label="Taste anchor" placeholder="a book, album, film, artist…" maxlength="80" value="${esc(name)}">
+    row.innerHTML = `<input aria-label="Taste anchor (optional)" placeholder="a book, album, film, artist…" maxlength="80" value="${esc(name)}">
       <select aria-label="Kind">${ANCHOR_DOMAINS.map(([v, l]) => `<option value="${v}"${v === domain ? ' selected' : ''}>${l}</option>`).join('')}</select>
       <button type="button" class="x" aria-label="Remove">×</button>`;
     row.querySelector('.x').onclick = () => { if (box.children.length > 1) row.remove(); };
     box.appendChild(row);
   }
+  // Anchors follow the idea: the preset anchors belong to the preset idea. Once a side's idea text changes,
+  // its anchors are cleared (unless the user edited them) and the server reads the typed idea itself in Qloo.
+  const touched = { thesis: false, antithesis: false };
   for (const k of ['thesis', 'antithesis']) {
-    $(`${k}-idea`).value = DEMO[k].idea;
-    DEMO[k].anchors.forEach(([n, d]) => addAnchor($(`${k}-anchors`), n, d));
+    const box = $(`${k}-anchors`), idea = $(`${k}-idea`);
+    idea.value = DEMO[k].idea;
+    DEMO[k].anchors.forEach(([n, d]) => addAnchor(box, n, d));
+    box.addEventListener('input', () => { touched[k] = true; });
+    box.addEventListener('change', () => { touched[k] = true; });
+    box.addEventListener('click', e => { if (e.target.closest('.x')) touched[k] = true; });
+    idea.addEventListener('input', () => {
+      const v = idea.value.trim();
+      if (!touched[k]) {
+        box.innerHTML = '';
+        if (v.toLowerCase() === DEMO[k].idea) DEMO[k].anchors.forEach(([n, d]) => addAnchor(box, n, d));
+        else addAnchor(box);
+      }
+      const empty = [...box.querySelectorAll('input')].every(i => !i.value.trim());
+      box.querySelectorAll('input').forEach(i => { i.placeholder = empty && v ? `optional: we'll look up “${v.slice(0, 30)}” in Qloo` : 'a book, album, film, artist…'; });
+      // The preset synthesis belongs to the preset pair too.
+      if ($('synthesis').value === DEMO.synthesis) $('synthesis').value = '';
+    });
   }
   // The demo default keeps the synthesis; a blank synthesis is proposed by the agent.
   $('synthesis').value = params.has('blank') ? '' : DEMO.synthesis;
@@ -35,6 +54,11 @@
   window.PTA.showMode = showMode;
   $('tab-bridge').onclick = () => showMode('bridge');
   $('tab-taste').onclick = () => showMode('taste');
+  // Hero entry points: jump to a side's idea field (switching back to the bridge mode if needed).
+  document.querySelectorAll('[data-entry]').forEach(a => { a.onclick = e => {
+    e.preventDefault(); if ($('dialectic').hidden) showMode('bridge');
+    const f = $(a.dataset.entry); f.closest('fieldset').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); f.focus({ preventScroll: true });
+  }; });
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const WAIT = ['Resolving both sides in Qloo…', 'Asking who loves the thesis…', 'Asking who loves the antithesis…', 'Re-ranking every pick against both sides…', 'Looking for the bridge…'];
@@ -44,8 +68,7 @@
     e.preventDefault();
     const body = { thesis: side('thesis'), antithesis: side('antithesis'), synthesis: $('synthesis').value.trim() };
     if (!body.thesis.idea || !body.antithesis.idea) { $('status').textContent = 'Name both ideas: a thesis and its opposite.'; return; }
-    if (!body.thesis.anchors.length || !body.antithesis.anchors.length) { $('status').textContent = 'Give each side at least one taste anchor.'; return; }
-    $('go-bridge').disabled = true; $('bridge-reading').hidden = true; level(0);
+    $('go-bridge').disabled = true; $('try-example').disabled = true; $('bridge-reading').hidden = true; level(0);
     let w = 0; $('status').textContent = WAIT[0]; const tick = setInterval(() => { $('status').textContent = WAIT[++w % WAIT.length]; }, 1500);
     try {
       const r = await fetch('/api/oracle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -54,7 +77,7 @@
       clearInterval(tick); $('status').textContent = '';
       await render(data);
     } catch (err) { clearInterval(tick); $('status').textContent = err.message; }
-    finally { $('go-bridge').disabled = false; }
+    finally { $('go-bridge').disabled = false; $('try-example').disabled = false; }
   };
 
   const pct = x => (x ? Math.round(x * 100) : 0);
@@ -75,7 +98,7 @@
   async function render(d) {
     const standIn = d.mode.standIn;
     $('bmode').className = 'mode' + (standIn ? ' standin' : '');
-    $('bmode').textContent = standIn ? 'Stand-in data · not from Qloo' : `Qloo taste graph · live${d.mode.llm.startsWith('template') ? '' : ` · words by ${d.mode.llm}`}`;
+    $('bmode').textContent = standIn ? `Stand-in data · not from Qloo${d.mode.why ? ` · ${d.mode.why}` : ''}` : `Qloo taste graph · live${d.mode.llm.startsWith('template') ? '' : ` · words by ${d.mode.llm}`}`;
     $('movement').innerHTML = `<span class="t">“${esc(d.thesis.idea)}”</span> <i>meets</i> <span class="a">“${esc(d.antithesis.idea)}”</span> <i>and becomes</i> <span class="s">“${esc(d.synthesis.text)}”</span>${d.synthesis.proposed ? ' <small>(proposed by the agent)</small>' : ''}`;
     $('understand').textContent = d.understand;
     $('about').textContent = d.aboutYou;
@@ -92,6 +115,21 @@
     for (const [n, c] of cards.entries()) { c.classList.add('lit'); level(n + 1); await sleep(800 * fast); }
     if (!params.has('noscroll')) $('bridge-reading').scrollIntoView({ behavior: fast ? 'smooth' : 'auto', block: 'start' });
   }
+
+  // "Try an example": one tap fills a pair that gives good live results (no anchors: Qloo reads the words) and runs it.
+  const EXAMPLES = [['Rancid', 'Conway Twitty'], ['war', 'peace'], ['Interstellar', 'Pride and Prejudice']];
+  let ex = 0;
+  $('try-example').onclick = () => {
+    if ($('go-bridge').disabled) return;
+    const [t, a] = EXAMPLES[ex++ % EXAMPLES.length];
+    for (const [k, v] of [['thesis', t], ['antithesis', a]]) {
+      touched[k] = false; const idea = $(`${k}-idea`); idea.value = v;
+      idea.dispatchEvent(new Event('input', { bubbles: true })); // anchors clear, placeholders say we'll look it up
+    }
+    $('synthesis').value = '';
+    $('try-hint').textContent = `${t} vs ${a} · tap again for another`;
+    $('dialectic').requestSubmit();
+  };
 
   if (params.has('demo') && params.get('demo') !== 'taste') setTimeout(() => $('dialectic').requestSubmit(), 300);
 })();

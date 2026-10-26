@@ -17,24 +17,38 @@
 </head>
 <body>
 <canvas class="stage" id="stage" aria-hidden="true"></canvas>
+<canvas class="stage forms" id="nous-forms" aria-hidden="true"></canvas>
+<div class="intro" id="intro" role="dialog" aria-label="Aufhebung intro" hidden>
+  <canvas class="intro-forms" id="intro-forms" aria-hidden="true"></canvas>
+  <p class="intro-nous" aria-hidden="true"><span class="nous-word">Nous</span><span class="nous-sub">mind that sees both sides at once</span></p>
+  <div class="intro-copy">
+    <p class="kicker">Aufhebung · the Dialectic Engine</p>
+    <p class="intro-line">Two ideas. One hidden common ground.</p>
+    <button type="button" class="enter primary" id="intro-enter">Enter the engine</button>
+  </div>
+</div>
+<script src="intro.js"></script>
 <main class="ui">
+  <nav class="tabs modes" aria-label="Mode"><button type="button" class="tab" id="tab-bridge" aria-pressed="true">Bridge two ideas</button><button type="button" class="tab" id="tab-taste" aria-pressed="false">Read one taste</button></nav>
   <header class="mast">
     <p class="kicker">Aufhebung · the Dialectic Engine</p>
     <h1>Enter two opposing ideas.<br><em>Find the culture both sides share.</em></h1>
-    <p class="whisper">Anchor each idea in a book, album, film, artist or place. Qloo's taste graph finds what each side's audience loves, and what both love. Hegel gives the movement, Plotinus the method.</p>
-    <nav class="tabs" aria-label="Mode"><button type="button" class="tab" id="tab-bridge" aria-pressed="true">Bridge two ideas</button><button type="button" class="tab" id="tab-taste" aria-pressed="false">Read one taste</button></nav>
+    <p class="whisper use">Use shared culture to bridge two sides: for mediators, organizers, and anyone trying to understand the other side.</p>
+    <p class="whisper">Type anything: a band, a film, a book, or a plain word like “war”. Qloo's taste graph finds what each side's audience loves, and what both love. Hegel gives the movement, Plotinus the method.</p>
+    <nav class="entries" aria-label="Start with a side"><a class="entry thesis" href="#thesis-idea" data-entry="thesis-idea">Thesis</a><span class="vs" aria-hidden="true">·</span><a class="entry antithesis" href="#antithesis-idea" data-entry="antithesis-idea">Antithesis</a></nav>
   </header>
 
   <form class="altar dialectic" id="dialectic" autocomplete="off">
+    <p class="try"><button type="button" class="try-example" id="try-example" aria-describedby="try-hint"><span aria-hidden="true">◇</span> Try an example</button><span class="try-hint" id="try-hint">fills both sides and finds the bridge</span></p>
     <div class="sides">
       <fieldset class="side thesis"><legend class="kicker">Thesis</legend>
         <input class="idea" id="thesis-idea" aria-label="Thesis idea" placeholder="an idea, e.g. help yourself" maxlength="80">
-        <p class="fine left">Taste anchors for this side</p><div class="loves" id="thesis-anchors"></div>
+        <p class="fine left">Taste anchors for this side <span class="opt">(optional)</span></p><div class="loves" id="thesis-anchors"></div>
         <button type="button" class="enter ghost small" data-add="thesis-anchors">+ anchor</button>
       </fieldset>
       <fieldset class="side antithesis"><legend class="kicker">Antithesis</legend>
         <input class="idea" id="antithesis-idea" aria-label="Antithesis idea" placeholder="its opposite, e.g. help others" maxlength="80">
-        <p class="fine left">Taste anchors for this side</p><div class="loves" id="antithesis-anchors"></div>
+        <p class="fine left">Taste anchors for this side <span class="opt">(optional)</span></p><div class="loves" id="antithesis-anchors"></div>
         <button type="button" class="enter ghost small" data-add="antithesis-anchors">+ anchor</button>
       </fieldset>
     </div>
@@ -93,10 +107,12 @@
 
   <footer class="foot">
     <p>Taste data from <a href="https://www.qloo.com/" target="_blank" rel="noopener">Qloo</a>. Built for the Qloo Agentic Hackathon. <q>Withdraw into yourself and look.</q> Ennead I.6</p>
+    <p class="replay"><button type="button" class="replay-intro" id="replay-intro" aria-label="Replay the intro animation"><span aria-hidden="true">◇</span> replay intro</button></p>
   </footer>
 </main>
 <script src="drone.js"></script>
 <script src="stage.js"></script>
+<script src="forms.js"></script>
 <script src="app.js"></script>
 <script src="bridge.js"></script>
 </body>

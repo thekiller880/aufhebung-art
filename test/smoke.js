@@ -44,6 +44,6 @@ assert.deepEqual(mins, [...mins].sort((p, q) => q - p), 'bridge sorted by shared
 assert.ok(!/god|divine|holy|sin\b|pray/i.test(JSON.stringify([d.bridge.one, d.understand, d.aboutYou])), 'philosophy, not religion');
 r = await call('POST', { thesis: T, antithesis: A, synthesis: 'my own synthesis' });
 assert.equal(r.body.synthesis.text, 'my own synthesis'); assert.equal(r.body.synthesis.proposed, false);
-r = await call('POST', { thesis: T, antithesis: { idea: 'help others', anchors: [] } }); assert.equal(r.code, 400, 'missing antithesis anchors');
+r = await call('POST', { thesis: T, antithesis: { idea: 'help others', anchors: [] } }); assert.equal(r.code, 200, 'a side with no anchors is read from its idea text'); assert.ok(r.body.antithesis.anchors.length, 'antithesis anchors resolved from the idea');
 r = await call('POST', { thesis: { idea: '', anchors: T.anchors }, antithesis: A }); assert.equal(r.code, 400, 'missing thesis idea');
 console.log('smoke ok: dialectic mock flow,', d.bridge.picks.length, 'bridge /', d.thesis.picks.length, 'thesis /', d.antithesis.picks.length, 'antithesis picks');

@@ -1,5 +1,6 @@
 // Vercel serverless function: POST /api/oracle
 //   Dialectic bridge (main): { thesis:{idea, anchors:[{name,domain}]}, antithesis:{...}, synthesis? }
+//     anchors are optional: a side without them is resolved from its idea text via Qloo /search and /v2/tags.
 //   Single taste (secondary): { loves: [{ name, domain? }] }
 import { runAgent, cleanInput } from '../lib/agent.js';
 import { runDialectic, cleanDialectic } from '../lib/dialectic.js';
@@ -13,7 +14,6 @@ export default async function handler(req, res) {
   try {
     if (body && (body.thesis || body.antithesis)) {
       const d = cleanDialectic(body);
-      if (!d.thesis.anchors.length || !d.antithesis.anchors.length) return res.status(400).json({ error: 'Give each side at least one taste anchor (a book, album, film, artist or place).' });
       if (!d.thesis.idea || !d.antithesis.idea) return res.status(400).json({ error: 'Name both ideas: a thesis and its antithesis.' });
       return res.status(200).json(await runDialectic(d));
     }
@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     if (!loves.length) return res.status(400).json({ error: 'Give at least one thing you love.' });
     return res.status(200).json(await runAgent(loves));
   } catch (e) {
+    if (e.friendly) return res.status(e.status || 422).json({ error: e.message });
     console.error('[oracle]', e);
     return res.status(500).json({ error: 'Something went wrong. Try again.' });
   }

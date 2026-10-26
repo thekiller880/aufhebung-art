@@ -2,6 +2,8 @@
 
 **Enter two opposing ideas. Find the culture both sides share.**
 
+**Live demo:** [aufhebung.vercel.app](https://aufhebung.vercel.app) (try [the bridge demo](https://aufhebung.vercel.app/?demo)).
+
 People who disagree still read, watch and listen to a lot of the same things. Aufhebung finds that shared culture with Qloo's taste graph.
 
 1. **Thesis:** an idea, e.g. "help yourself", plus one to four taste anchors that stand for it (*Thus Spoke Zarathustra*, *The Fountainhead*, *Whiplash*).
