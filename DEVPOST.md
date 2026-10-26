@@ -1,51 +1,42 @@
-# Aufhebung: the Dialectic Engine (Devpost draft)
+# Aufhebung: the Dialectic Engine
 
-**Live demo:** https://aufhebung.vercel.app (bridge demo: https://aufhebung.vercel.app/?demo)
+**Live:** https://aufhebung.vercel.app (instant demo: https://aufhebung.vercel.app/?demo) · **Code:** https://github.com/thekiller880/aufhebung-art (MIT)
 
-**Tagline:** Enter two opposing ideas. Find the culture both sides share.
+**Tagline:** Enter two opposing ideas. An agent finds the culture both sides already share.
 
-## The problem
-People who disagree about how to live usually stop talking at the level of ideas. But they still go to the same films, read the same novels and play the same records. That shared culture is common ground nobody points at. Teachers running a debate, moderators, couples, and anyone stuck in an argument with a friend can use it as a place to start.
+## What the agent does on its own
+You type two opposing ideas, e.g. "Rancid" vs "Conway Twitty", or "war" vs "peace". That's it. The agent then runs a multi-step loop against the Qloo Taste AI API, with no further input:
+
+1. **Reads each idea.** It calls Qloo `/search` (artists, films, books, TV) and `/v2/tags` in parallel and decides what the text is: a named thing becomes that entity; a plain word Qloo knows as a genre/theme ("war") becomes the best-loved works with that tag (`/v2/insights` + `filter.tags`). Nonsense gets an honest "couldn't find that", never invented data.
+2. **Fixes its own mistakes.** An anchor typed under the wrong kind ("Rancid" as a book matches *Rancid Aluminum*) is re-searched as any kind. If Qloo rejects a side's anchors as a signal for some type (HTTP 400 "invalid"), the agent borrows that side's own top picks from a type that works and retries. 429/5xx calls back off and retry; a domain that still fails is left out with the reason shown.
+3. **Maps both audiences.** Per domain (books, film, music, philosophy): `/v2/insights` signalled by the thesis, by the antithesis, and by both together, about 20 Insights calls per bridge.
+4. **Scores fairly.** It pools the candidates and calls `/v2/insights` again with `filter.results.entities` to re-rank every candidate **against each side separately**. Bridge score = `min(thesis affinity, antithesis affinity)` minus a small penalty for near-universal mega-hits. The joint signal alone just echoes the louder side; the min of two rankings finds real overlap.
+5. **Decides and explains.** It picks the bridge, then for each side the works that side loves and the other rates lower, proposes a synthesis if you left it blank, and writes a one-line reason with both real scores for every pick.
+6. **Shows its work.** "How the agent got here" lists every step and Qloo call it made.
 
 ## Who it's for
-Aufhebung uses shared culture to bridge two sides. It's for:
-- **Mediators** looking for neutral ground to open a hard conversation.
+Shared culture as a place to start a hard conversation:
+- **Mediators** looking for neutral ground.
 - **Community organizers** bringing together neighbors who vote, worship or live differently.
-- **Educators** running a debate who want students to see what the other side actually loves.
-- **Polarized families and friend groups:** the uncle and the niece who can't talk politics but might both love the same band.
+- **Teachers** running a debate who want students to see what the other side actually loves.
+- **Divided families and friends**: the uncle and the niece who can't talk politics but might love the same band.
 
-A secondary use: brands and campaigns can see what two audience segments already share before they speak to both.
+(Brands could also use it to see what two audiences share, but that's a side use.)
 
-## What it does
-1. You enter a **thesis** ("help yourself") and an **antithesis** ("help others"). Type anything: a band ("Rancid" vs "Conway Twitty"), a film, a book, or a plain word ("war" vs "peace"). The agent looks the idea up in Qloo itself: a named thing becomes that entity, and a plain word becomes the best-loved works Qloo tags with it. You can also add one to four **taste anchors** of your own: *Thus Spoke Zarathustra*, *The Fountainhead* and *Whiplash* on one side; Simone Weil's *Gravity and Grace*, *It's a Wonderful Life* and *Les Misérables* on the other.
-2. You can add a **synthesis** ("help yourself by helping others"), or leave it blank and the agent proposes one.
-3. The agent asks **Qloo's Taste AI** what each side's audience loves across books, film, music and philosophy, then scores every candidate against both sides.
-4. **The bridge** comes first: works both audiences rate highly, each with both scores. In the live demo that's *The Diving Bell and the Butterfly* (86/89), *Inside Llewyn Davis* (88/89), Jimi Hendrix (88/89) and Neil Young & Crazy Horse (85/92). Typed free-form, "Rancid" vs "Conway Twitty" meets in Mike Ness (92/84) and The Browns (83/92).
-5. A one-line **"understand the other side"** tells you where to start the conversation, followed by a brief **"what this says about you"** line.
-6. Then come the **thesis** and **antithesis** cards: what each side loves that the other rates lower. Each has a **Soul** line (the textures that side feels, from Qloo tags) and an **Intellect** line (the pattern underneath).
-
-Every pick keeps a plain one-line reason with real affinity scores. The philosophy is a lens, not a religion: Hegel gives the movement (idea, opposite, a higher unity that keeps both), Plotinus gives the method (Soul, Intellect, and the One as the shared thread), and Nietzsche's will to power is read as self-overcoming, never domination.
-
-A secondary mode, **Read one taste**, is the original single-taste reading: cross-domain leaps from a few loves, read on three levels.
-
-## How we built it
-- **Name and look:** *Aufhebung* is Hegel's word for a synthesis that keeps both sides and lifts them higher. Plotinus stays as the visual style (rose window, arches, the glowing One) and as the Soul / Intellect / One reading method; the product itself is a Hegelian dialectic engine.
-- **Qloo, used non-obviously:** for each domain we make three Insights calls (signalled by the thesis, by the antithesis, and by both), take the union, then call Insights again with `filter.results.entities` to **re-rank every candidate against each side separately**. The bridge score is `min(thesis affinity, antithesis affinity)`. We found that the joint signal alone just echoes whichever side has the stronger anchors; the min of two rankings finds genuine overlap.
-- **Philosophy:** a 22-work ethics and idealist canon (Nietzsche, Rand, Emerson, Marcus Aurelius, Aristotle, Laozi, Kierkegaard, Camus, Buber, Frankl, Weil, Plato, Plotinus, Spinoza, Kant, Hegel…) is resolved through `/search` and ranked by Qloo for each side.
-- **LLM (optional):** Gemini or Groq rewrites the lines from Qloo's data only. It can't invent picks. Without a key, a deterministic template engine writes them.
-- **Stack:** a static HTML/CSS/JS frontend (canvas and Web Audio, no framework) and one Node serverless function on Vercel's free tier. No dependencies.
+## Judging criteria
+- **Technological implementation:** Uses Qloo's API in a non-obvious way (per-side re-ranking with `filter.results.entities` + min-score). It resolves free text into entities or tags, recovers from errors on its own, and has no npm dependencies: one Node serverless function and a static frontend on Vercel's free tier. An optional Gemini/Groq pass only rewrites prose from Qloo's data and can't add picks; without it, a deterministic template writes everything.
+- **Design:** One input screen (two ideas, "Try an example" fills one pair in one tap). Results lead with a single sentence: "Understand the other side: both audiences love X, Y and Z. Start the conversation there." Every pick shows two affinity bars, one per side. The look (rose-window geometry, a radiant "Nous" intro) works on desktop and phone.
+- **Potential impact:** Polarized people stop talking about ideas but still share films, books and records. Aufhebung points to that common ground with real data, giving a mediator, a teacher or a family member a concrete, non-political first topic.
+- **Quality of the idea:** Hegel's *Aufhebung* is a synthesis that keeps both sides and lifts them. The app makes that literal: thesis, antithesis, and a bridge made of culture both sides already love. Plotinus supplies the reading of each side: Soul (what it feels, from Qloo tags), Intellect (the pattern underneath), the One (the shared thread). The philosophy stays as a lens, never a sermon.
 
 ## Challenges
-- The joint taste signal is biased toward the louder side, so we built the per-side re-rank and min score.
-- Insights caps results at 50, so the candidate pool had to be capped to keep every score real.
-- Destinations return 400 for book-only signals and skew to Los Angeles for film signals, so places stay out of the bridge for now.
-- Some anchors have no tags, and movie tags are often title keywords. We filter those so the Soul line reads as feeling, not metadata.
-- Free-text ideas: a band name typed under the wrong kind matched junk ("Rancid" as a book found *Rancid Aluminum*), so names fall back to an any-kind search, and plain words go through Qloo's tag search. Nonsense gets a friendly "couldn't find that" note, never made-up data.
-- Mega-hits (Taylor Swift, *Forrest Gump*) score high with almost any audience, so the bridge gives a small penalty to near-universal popularity. The picks then reflect the specific pair.
-- Keeping philosophy readable and not preachy: each pick gets a plain sentence first.
+- The joint taste signal leans toward the louder side, so we added the per-side re-rank and min score.
+- Insights returns at most 50 results, so the candidate pool is capped to keep every score real.
+- Some anchors aren't accepted as a signal for some output types, which led to the borrow-and-retry step.
+- Mega-hits score high with every audience; a small popularity penalty keeps the bridge specific to the pair.
 
 ## What's next
-See LATER.md: places in the bridge once location works, share cards, a debate chat and multi-round chains.
+Places in the bridge once location signals work, shareable bridge cards, and multi-round chains (the synthesis becomes the next thesis).
 
 ## Built with
-Qloo Taste AI API · Node.js · Vercel · Web Audio API · Canvas 2D · Gemini / Groq (optional)
+Qloo Taste AI API (`/search`, `/v2/tags`, `/v2/insights`) · Node.js · Vercel · Canvas 2D · Web Audio API · optional Gemini / Groq
