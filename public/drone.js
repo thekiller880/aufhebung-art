@@ -20,7 +20,21 @@ window.Drone = class {
     // The One: a high pure tone with a very slow vibrato, barely there.
     this.one = bus(0); const hi = voice(440, .025); hi.g.connect(this.one); voice(660.5, .012).g.connect(this.one);
     const vib = c.createOscillator(), vg = c.createGain(); vib.frequency.value = .07; vg.gain.value = 1.6; vib.connect(vg); vg.connect(hi.o.frequency); vib.start();
+    // The bridge room (room.js): a separate bus that only fills in while someone lingers there. It rides under the
+    // master gain, so it is silent whenever the drone is off. Stage 1 adds the fifth and octave (E3, A3), stage 2 the
+    // major third (C#4), stage 3 a high fifth and octave (E4, A4): the A drone becomes a full, consonant A major chord.
+    this.deepBus = bus(1);
+    this.deepVoices = [[[164.81, .07], [220, .05]], [[277.18, .045]], [[329.63, .03], [440, .02]]].map(vs => {
+      const g = c.createGain(); g.gain.value = 0; g.connect(this.deepBus); for (const [hz, v] of vs) voice(hz, v).g.connect(g); return g;
+    });
+    this.deepen(this.depth || 0);
     return true;
+  }
+  /** Bridge room only: 0 = plain drone, 1..3 = richer chord. Slow glides (no clicks); never starts sound by itself. */
+  deepen(n) {
+    this.depth = n; if (!this.c) return; const t = this.c.currentTime;
+    this.deepVoices.forEach((g, i) => g.gain.setTargetAtTime(n > i ? 1 : 0, t, n > i ? 3.5 : 2));
+    this.lp.frequency.setTargetAtTime(n ? [1400, 1700, 2100, 2600][n] : [220, 320, 650, 1400][this.level] || 220, t, 3);
   }
   set(on) {
     this.on = on;
@@ -34,6 +48,6 @@ window.Drone = class {
     this.soul.gain.setTargetAtTime(n >= 1 ? .9 : 0, t, 1.5);
     this.nous.gain.setTargetAtTime(n >= 2 ? 1 : 0, t, 2);
     this.one.gain.setTargetAtTime(n >= 3 ? 1 : 0, t, 3);
-    this.lp.frequency.setTargetAtTime([220, 320, 650, 1400][n] || 220, t, 2);
+    if (!this.depth) this.lp.frequency.setTargetAtTime([220, 320, 650, 1400][n] || 220, t, 2);
   }
 };

@@ -77,6 +77,7 @@
   <section class="reading" id="bridge-reading" hidden>
     <div class="mode" id="bmode"></div>
     <p class="movement" id="movement"></p>
+    <p class="step-in"><button type="button" class="step-in-btn" id="step-in"><span aria-hidden="true">◇</span> Step into the bridge</button></p>
     <p class="understand" id="understand"></p>
     <p class="about" id="about"></p>
     <article class="card bridge" data-tier="one">
@@ -110,10 +111,22 @@
     <p class="replay"><button type="button" class="replay-intro" id="replay-intro" aria-label="Replay the intro animation"><span aria-hidden="true">◇</span> replay intro</button></p>
   </footer>
 </main>
+<div class="room" id="room" role="dialog" aria-modal="true" aria-labelledby="room-s" data-stage="0" hidden>
+  <canvas class="room-forms" id="room-forms" aria-hidden="true"></canvas>
+  <button type="button" class="room-back" id="room-back"><span aria-hidden="true">←</span> Back to the reading</button>
+  <div class="room-copy">
+    <p class="kicker">The bridge · stay a while</p>
+    <p class="room-pair"><span class="t" id="room-t"></span> <i>and</i> <span class="a" id="room-a"></span></p>
+    <p class="room-s" id="room-s"></p>
+    <p class="room-one" id="room-one"></p>
+    <button type="button" class="enter ghost small drone-btn" aria-pressed="false">Soft drone</button>
+  </div>
+</div>
 <script src="drone.js"></script>
 <script src="stage.js"></script>
 <script src="forms.js"></script>
 <script src="app.js"></script>
 <script src="bridge.js"></script>
+<script src="room.js"></script>
 </body>
 </html>

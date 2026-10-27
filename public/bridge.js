@@ -68,6 +68,7 @@
     e.preventDefault();
     const body = { thesis: side('thesis'), antithesis: side('antithesis'), synthesis: $('synthesis').value.trim() };
     if (!body.thesis.idea || !body.antithesis.idea) { $('status').textContent = 'Name both ideas: a thesis and its opposite.'; return; }
+    window.Room?.close(); last = null;
     $('go-bridge').disabled = true; $('try-example').disabled = true; $('bridge-reading').hidden = true; level(0);
     let w = 0; $('status').textContent = WAIT[0]; const tick = setInterval(() => { $('status').textContent = WAIT[++w % WAIT.length]; }, 1500);
     try {
@@ -95,7 +96,12 @@
       <div class="picks">${s.picks.map(i => pick(i)).join('') || '<p class="fine">Qloo returned nothing here.</p>'}</div>`;
   }
 
+  // The bridge room (room.js): one quiet entry point under the result; it opens a separate view of this synthesis.
+  let last = null;
+  $('step-in').onclick = e => window.Room?.open(last, e.currentTarget);
+
   async function render(d) {
+    last = d;
     const standIn = d.mode.standIn;
     $('bmode').className = 'mode' + (standIn ? ' standin' : '');
     $('bmode').textContent = standIn ? `Stand-in data · not from Qloo${d.mode.why ? ` · ${d.mode.why}` : ''}` : `Qloo taste graph · live${d.mode.llm.startsWith('template') ? '' : ` · words by ${d.mode.llm}`}`;

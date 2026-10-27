@@ -168,3 +168,34 @@ html.intro-on,html.intro-on body{overflow:hidden}
 .try-example:focus-visible{outline:1px solid rgba(226,192,120,.7);outline-offset:3px;border-radius:3px}
 .try-example:disabled{opacity:.5;cursor:wait}
 .try-hint{font-size:.78rem;color:var(--muted);opacity:.8}
+
+/* Bridge room (room.js): an opt-in separate view of one synthesis; one quiet entry point under the result. */
+.step-in{margin:.1rem 0 0;text-align:center}
+.step-in-btn{background:none;border:0;padding:.3rem .5rem;min-height:36px;font-family:var(--display);font-style:italic;font-size:1rem;letter-spacing:.04em;color:var(--ivory);opacity:.55;cursor:pointer;transition:opacity .2s,text-shadow .2s}
+.step-in-btn:hover,.step-in-btn:focus-visible{opacity:.95;text-shadow:0 0 12px rgba(255,214,130,.45)}
+.step-in-btn:focus-visible{outline:1px solid rgba(226,192,120,.7);outline-offset:2px;border-radius:4px}
+.room{position:fixed;inset:0;z-index:15;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  background:radial-gradient(ellipse at 50% 40%,#22131f 0%,#0d0610 55%,#070308 100%);animation:roomIn .9s ease-out both}
+.room[hidden]{display:none}
+html.room-on,html.room-on body{overflow:hidden}
+@keyframes roomIn{from{opacity:0}to{opacity:1}}
+.room::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 6s ease;
+  background:radial-gradient(ellipse at 50% 40%,rgba(255,226,170,.10),rgba(255,226,170,0) 60%)}
+.room[data-stage="3"]::before{opacity:1}
+.room-forms{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.room-back{position:absolute;top:calc(1rem + env(safe-area-inset-top));left:1rem;z-index:1;background:rgba(7,3,8,.45);border:1px solid var(--line);border-radius:999px;
+  padding:.4rem 1rem;min-height:40px;font:inherit;font-size:.85rem;letter-spacing:.06em;color:var(--ivory);cursor:pointer;opacity:.8}
+.room-back:hover,.room-back:focus-visible{opacity:1;border-color:var(--line-strong)}
+.room-copy{position:relative;max-width:40rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.7rem;padding:0 1.2rem calc(9vh + env(safe-area-inset-bottom))}
+.room-copy .enter.small{align-self:center;margin-top:.4rem;opacity:.75}
+.room-copy p{margin:0;text-shadow:0 0 18px rgba(7,3,8,.95),0 1px 12px rgba(7,3,8,.9)}
+.room-pair{font-family:var(--display);font-size:clamp(1.1rem,2.6vw,1.45rem)}
+.room-pair i{color:var(--muted);font-size:.85em}
+.room-pair .t{color:#e7a3b3;transition:color 8s ease}.room-pair .a{color:var(--gold);transition:color 8s ease}
+.room[data-stage="2"] .room-pair .t,.room[data-stage="3"] .room-pair .t{color:#f0c8ae}
+.room[data-stage="2"] .room-pair .a,.room[data-stage="3"] .room-pair .a{color:#f0d6a4}
+.room-s{font-family:var(--display);font-size:clamp(1.6rem,4.6vw,2.6rem);line-height:1.15;color:var(--ivory);text-shadow:0 0 22px rgba(255,236,190,.35)!important}
+.room-one{font-family:var(--display);font-style:italic;color:var(--muted);font-size:1.08rem;line-height:1.4;opacity:0;transform:translateY(6px);transition:opacity 4s ease,transform 4s ease}
+.room[data-stage="2"] .room-one,.room[data-stage="3"] .room-one{opacity:1;transform:none}
+@media (max-width:640px){.room-copy{padding-bottom:calc(6vh + env(safe-area-inset-bottom))}.room-one{font-size:1rem}}
+@media (prefers-reduced-motion:reduce){.room{animation:none}.room-one{transform:none;transition:opacity 1.2s}.room-pair .t,.room-pair .a{transition:color 1.2s}.room::before{transition:opacity 1.2s}}

@@ -143,7 +143,7 @@
     return { stop() { alive = false; cancelAnimationFrame(raf); removeEventListener('resize', onResize); document.removeEventListener('visibilitychange', onVis); reduceQ.removeEventListener?.('change', start); } };
   }
 
-  window.NousForms = { create };
+  window.NousForms = { create, SOLIDS, COLORS };
   const bg = document.getElementById('nous-forms');
   if (bg && bg.getContext) create(bg);
 })();
