@@ -19,7 +19,25 @@
   $('add').onclick = () => addLove();
   document.querySelectorAll('.drone-btn').forEach(b => { b.onclick = () => { const on = b.getAttribute('aria-pressed') !== 'true'; document.querySelectorAll('.drone-btn').forEach(x => x.setAttribute('aria-pressed', on)); drone.set(on); }; });
   // Shared helpers for bridge.js (the main dialectic flow).
-  window.PTA = { $, esc, unent, DOMAINS, drone, level: n => { drone.setLevel(n); window.Stage?.setLevel(n); } };
+  // Ask the oracle without trusting the reply to be JSON: a platform timeout comes back as a plain-text page, which
+  // Safari's r.json() reports as "The string did not match the expected pattern." Read text, parse, say something
+  // human, and retry once by itself when the failure looks temporary (timeout, busy, network).
+  const SLOW = 'The oracle took too long to answer. Try again in a moment.';
+  async function askOracle(body, onRetry) {
+    for (let attempt = 0; ; attempt++) {
+      let r = null, data = null, transient = false;
+      try {
+        r = await fetch('/api/oracle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const text = await r.text();
+        try { data = JSON.parse(text); } catch { data = null; }
+        if (r.ok && data) return data;
+        transient = !data || r.status >= 500 || r.status === 429 || !!data.retry;
+      } catch { transient = true; }
+      if (transient && attempt === 0) { onRetry?.(); continue; }
+      throw new Error((data && data.error) || (r && r.status < 500 && r.status !== 429 ? 'No answer came back. Try again.' : SLOW));
+    }
+  }
+  window.PTA = { $, esc, unent, DOMAINS, drone, askOracle, level: n => { drone.setLevel(n); window.Stage?.setLevel(n); } };
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const level = n => { drone.setLevel(n); window.Stage?.setLevel(n); };
@@ -32,9 +50,7 @@
     $('go').disabled = true; $('reading').hidden = true; level(0);
     let w = 0; $('status').textContent = WAIT[0]; const tick = setInterval(() => { $('status').textContent = WAIT[++w % WAIT.length]; }, 1600);
     try {
-      const r = await fetch('/api/oracle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ loves }) });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'No answer came back. Try again.');
+      const data = await askOracle({ loves }, () => { w = 0; $('status').textContent = 'The oracle is slow tonight. Asking once more…'; });
       clearInterval(tick); $('status').textContent = '';
       await render(data);
     } catch (err) { clearInterval(tick); $('status').textContent = err.message; }

@@ -1,6 +1,6 @@
 // Main flow: the dialectic bridge. Thesis + antithesis (each with taste anchors) -> /api/oracle -> three cards.
 (() => {
-  const { $, esc, unent, DOMAINS, level } = window.PTA;
+  const { $, esc, unent, DOMAINS, level, askOracle } = window.PTA;
   const ANCHOR_DOMAINS = DOMAINS.filter(([v]) => v !== 'podcast');
   const DEMO = {
     thesis: { idea: 'help yourself', anchors: [['Thus Spoke Zarathustra', 'book'], ['The Fountainhead', 'book'], ['Whiplash', 'film']] },
@@ -72,9 +72,7 @@
     $('go-bridge').disabled = true; $('try-example').disabled = true; $('bridge-reading').hidden = true; level(0);
     let w = 0; $('status').textContent = WAIT[0]; const tick = setInterval(() => { $('status').textContent = WAIT[++w % WAIT.length]; }, 1500);
     try {
-      const r = await fetch('/api/oracle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'No answer came back. Try again.');
+      const data = await askOracle(body, () => { w = 0; $('status').textContent = 'The oracle is slow tonight. Asking once more…'; });
       clearInterval(tick); $('status').textContent = '';
       await render(data);
     } catch (err) { clearInterval(tick); $('status').textContent = err.message; }
