@@ -59,6 +59,7 @@ Keys are only read from the environment. They are never committed or sent to the
 | `QLOO_API_KEY` | for live data | Qloo hackathon key (sent as `X-Api-Key`) |
 | `QLOO_BASE_URL` | no | Defaults to `https://hackathon.api.qloo.com` |
 | `MOCK_QLOO` | no | Set to `1` to force mock data |
+| `EXAMPLE_CACHE` | no | Private saved readings for the suggested examples (gzip+base64 JSON), used only when live Qloo fails, is empty or takes over ~8 s. Kept in Vercel env, never in the repo |
 | `GEMINI_API_KEY` / `GEMINI_MODEL` | no | Optional LLM narration (default `gemini-2.5-flash`) |
 | `GROQ_API_KEY` / `GROQ_MODEL` | no | Optional LLM narration (default `llama-3.3-70b-versatile`) |
 
@@ -129,7 +130,7 @@ test/              smoke test (offline) and live check
 
 ## Data note
 
-Per the hackathon FAQ, no Qloo response data is stored in this repo. The mock data in `lib/mock.js` is hand-written stand-in content.
+Per the hackathon FAQ, no Qloo response data is stored in this repo. The saved readings that keep the suggested examples working when Qloo is busy live in a private server-side cache (the `EXAMPLE_CACHE` env var), which the FAQ allows; live results always come first. Add `?fallback=1` to the page URL to see the saved reading of an example on demand. The mock data in `lib/mock.js` is hand-written stand-in content.
 
 ## License
 

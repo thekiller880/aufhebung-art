@@ -67,6 +67,7 @@
   $('dialectic').onsubmit = async e => {
     e.preventDefault();
     const body = { thesis: side('thesis'), antithesis: side('antithesis'), synthesis: $('synthesis').value.trim() };
+    if (params.has('fallback')) body.forceSaved = true; // test hook: show the saved reading of an example
     if (!body.thesis.idea || !body.antithesis.idea) { $('status').textContent = 'Name both ideas: a thesis and its opposite.'; return; }
     window.Room?.close(); last = null;
     $('go-bridge').disabled = true; $('try-example').disabled = true; $('bridge-reading').hidden = true; level(0);
@@ -102,7 +103,7 @@
     last = d;
     const standIn = d.mode.standIn;
     $('bmode').className = 'mode' + (standIn ? ' standin' : '');
-    $('bmode').textContent = standIn ? `Stand-in data · not from Qloo${d.mode.why ? ` · ${d.mode.why}` : ''}` : `Qloo taste graph · live${d.mode.llm.startsWith('template') ? '' : ` · words by ${d.mode.llm}`}`;
+    $('bmode').textContent = standIn ? `Stand-in data · not from Qloo${d.mode.why ? ` · ${d.mode.why}` : ''}` : d.mode.saved ? 'Qloo taste graph · saved reading' : `Qloo taste graph · live${d.mode.llm.startsWith('template') ? '' : ` · words by ${d.mode.llm}`}`;
     $('movement').innerHTML = `<span class="t">“${esc(d.thesis.idea)}”</span> <i>meets</i> <span class="a">“${esc(d.antithesis.idea)}”</span> <i>and becomes</i> <span class="s">“${esc(d.synthesis.text)}”</span>${d.synthesis.proposed ? ' <small>(proposed by the agent)</small>' : ''}`;
     $('understand').textContent = d.understand;
     $('about').textContent = d.aboutYou;
