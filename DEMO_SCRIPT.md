@@ -18,12 +18,12 @@ On screen: in the first box type **Rancid**, in the second **Conway Twitty**. Le
 On screen: scroll slowly to the bridge card. Point out the live badge and the top picks: Mike Ness, *Texas Flood: The Inside Story of Stevie Ray Vaughan*, The Browns.
 > "This is real Qloo data. Mike Ness, the punk singer who went country. The Browns. A Stevie Ray Vaughan book. Things both audiences already love."
 
-**0:36–0:46 · Quick contrast**
-On screen: scroll back up, replace the two ideas with **war** and **peace**, and run it again. Show the new picks: Tajdar Junaid, Osho Jain, *Rang De Basanti*.
-> "Or plain words. War versus peace gives a completely different bridge: different music, different films."
+**0:36–0:50 · The bridge room**
+On screen: under the bridge, tap **Step into the bridge**. Turn on **Soft drone** if it's off. Just stay there: the two sides' shapes drift together, take on one gold colour, and the sound settles into a full chord.
+> "And if you want to stay with it, step into the bridge. The longer you linger, the more the two sides come together, in colour and in sound."
 
-**0:46–0:56 · Who it's for**
-On screen: let the bridge card sit, or scroll gently.
+**0:50–0:56 · Who it's for**
+On screen: tap **Back to the reading**, or let the room sit.
 > "It's for mediators, community organizers, educators, and families who can't talk politics but might both love the same band. Shared culture is where the conversation can start."
 
 **0:56–1:00 · Close**
@@ -31,6 +31,9 @@ On screen: scroll to the top, or show the address bar.
 > "Aufhebung, at aufhebung.vercel.app."
 
 ## Tips
+- Going off script is fine. Just hit the beats: two clashing ideas, the real Qloo bridge, the room, who it is for.
+- The room takes about 30 seconds to fully come together. To fit it in a short video, open https://aufhebung.vercel.app/?intro&linger=3 instead, which runs the room 3x faster. Or just trim the wait when editing.
+- Optional extra if you have time: run **war** vs **peace** to show a totally different bridge.
 - Results come from Qloo live, so picks can shift a little. Read whatever is on screen.
 - Each search takes a few seconds. Trim the wait when editing, or keep talking over it.
 - If the intro has already played on this phone, `?intro` in the address forces it again. So does the "replay intro" link at the bottom of the page.
